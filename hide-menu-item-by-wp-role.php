@@ -11,4 +11,3 @@ function wpmu_role_based_style() {
 }
 // for front-end; comment out if you don't want to hide on front-end
 add_action( 'wp_footer', 'wpmu_role_based_style', 99 );
-?>
