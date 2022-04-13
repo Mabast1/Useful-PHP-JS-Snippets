@@ -1,5 +1,6 @@
 <?php
 /**
+ * Author: Mabast
  * Activates the 'menu_order' filter and then hooks into 'menu_order'
  */
 add_filter('custom_menu_order', function() { return true; });
