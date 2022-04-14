@@ -1,3 +1,46 @@
+/* Custom CSS for STEAM On Demand Website */
+.site-header {
+  display: none;
+}
+.EvjIIpBybRxh9ht5Pu7_.nI_zoWhcrj_usnPrutGy {
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+/* hide scrollbar but allow scrolling */
+body {
+  -ms-overflow-style: none; /* for Internet Explorer, Edge */
+  scrollbar-width: none; /* for Firefox */
+  overflow-y: scroll;
+}
+
+body::-webkit-scrollbar {
+  display: none; /* for Chrome, Safari, and Opera */
+}
+/* end hide scrollbar but allow scrolling */
+iframe {
+  height: 100%;
+}
+
+/* STEAM strip styling */
+#steam-strip {
+  font-family: "Helvetica", Sans-serif;
+  font-size: 29px;
+  font-weight: 600;
+  color: white;
+  margin: 0px;
+}
+
+@media (min-width: 1025px) and (max-width: 1253px) {
+  #steam-strip {
+    font-size: 24px;
+  }
+}
+/* End STEAM strip styling */
+
+/* END Custom CSS for STEAM On Demand Website */
+
+/* Custom CSS for STEAM On Demand App*/
 .html {
   background-color: #000;
 }
