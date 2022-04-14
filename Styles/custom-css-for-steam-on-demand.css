@@ -1,0 +1,167 @@
+.html {
+  background-color: #000;
+}
+.body {
+  background-color: #000;
+}
+
+/* SOD Logo sticking out of menu */
+.site-header-container #site-logo .site-title img.bb-logo {
+  max-height: 155px;
+  padding-top: 39px;
+}
+
+.sticky-header .site-header {
+  box-shadow: 0 1px 0 0 rgb(139 141 157 / 5%), 0 5px 10px 0 rgb(65 71 108 / 6%);
+}
+
+.bb-elementor-content {
+  padding-top: 15px;
+}
+/* End SOD Logo sticking out of menu */
+
+/* Hide Course Fee Tag */
+.bb-course-footer.bb-course-pay {
+  display: none;
+}
+/* End Course Fee Tag */
+
+/* Hide course sidebar */
+.lms-topic-sidebar-wrapper {
+  display: none;
+}
+a.header-maximize-link.course-toggle-view {
+  display: none;
+}
+/* End hide course sidebar */
+/* Hide all courses tap in courses page */
+li#courses-all {
+  display: none;
+}
+/* End of hide courses tab */
+
+/* Decrease Footer Padding */
+#page .footer-bottom {
+  padding: 12px;
+}
+/* End Decrease Footer Padding */
+
+/* hide scrollbar but allow scrolling */
+body {
+  -ms-overflow-style: none; /* for Internet Explorer, Edge */
+  scrollbar-width: none; /* for Firefox */
+  overflow-y: scroll;
+}
+
+body::-webkit-scrollbar {
+  display: none; /* for Chrome, Safari, and Opera */
+}
+/* end hide scrollbar but allow scrolling */
+
+/* no extra scroll 
+html{
+    overflow: hidden;
+    height: 100%;
+}
+
+body{
+    height: 100%;
+    overflow: auto;
+}*/
+
+/* Design Print & PDF buttons */
+.pdfprnt-button {
+  background-color: #614dbb;
+  border-radius: 25px;
+  margin-left: 10px;
+  float: left !important;
+  color: white !important;
+}
+/* End Design Print & PDF buttons */
+
+/* BB update CSS fixes 
+.elementor-element-edit-mode .elementor-widget {
+		background: inherit;
+		border: none;
+		border-radius: 0;
+		font-size: inherit;
+		line-height: inherit;
+		margin-bottom: inherit;
+		padding: 0;
+}
+ End BB update CSS fixes */
+
+/* background white for registration form */
+article#post-5526,
+article#post-5432,
+article#post-6402,
+article#post-5527,
+article#post-6674,
+article#post-6675,
+article#post-6676,
+article#post-6677 {
+  background-color: white;
+  padding: 25px;
+  margin-top: 10%;
+}
+/*form custom titles edits*/
+.custom-form-msg {
+  text-align: center;
+  font-size: 15px;
+}
+
+.custom-form-title {
+  margin-bottom: 0px;
+}
+
+.h3 {
+  margin: 0.5rem;
+}
+/*end form custom titles edits*/
+.mp_wrapper {
+  background-color: #fff;
+  padding: 10px;
+}
+/* end of background */
+/* add space for Purchase order description */
+.mepr-payment-method-desc-text.mp-pm-desc-r33gfq-7n.spc.mepr-hidden {
+  padding-bottom: 20px;
+}
+/* end of purchase order */
+
+/* NEW menu button CSS 
+.new-btn{
+	background-color: red;
+	color: white;
+	border-radius: 11px;
+	padding-left: 7px;
+	padding-right: 7px;
+	padding-bottom: 3px;
+	padding-top: 2px;
+	position: absolute;
+	left: 74%;
+	margin-top: -18px;
+}
+
+@media only screen and (max-width: 600px) {
+	.new-btn{
+	}
+}
+ End of NEW menu button CSS */
+/* SOD text selection color */
+::selection {
+  background-color: #634abf;
+}
+/* end SOD text selection color */
+
+/* nav buttons on lessons page */
+.uael-post__arrow-outside .uael-post-grid .slick-next {
+  right: 93vw;
+}
+
+@media only screen and (max-width: 800px) {
+  .uael-post__arrow-outside .uael-post-grid .slick-next {
+    right: 70vw;
+  }
+}
+/* end nav buttons on lessons page */
