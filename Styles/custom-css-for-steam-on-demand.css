@@ -7,7 +7,7 @@
   margin-bottom: 0px;
 }
 
-/* hide scrollbar but allow scrolling */
+/* hide the scrollbar but allow scrolling */
 body {
   -ms-overflow-style: none; /* for Internet Explorer, Edge */
   scrollbar-width: none; /* for Firefox */
