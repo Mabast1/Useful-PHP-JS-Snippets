@@ -1,5 +1,7 @@
 <?php
 
+/* customization is for the free plugin only */
+
 include 'mo_oauth_log.php';
 
 class Mo_Oauth_Widget extends WP_Widget {
