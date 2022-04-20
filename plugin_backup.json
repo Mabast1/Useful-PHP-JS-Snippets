@@ -1,5 +1,3 @@
-// mini orange plugin setup for Clever & SOD
-
 {
   "plugin_config": {
     "host_name": "https://login.xecurify.com",
