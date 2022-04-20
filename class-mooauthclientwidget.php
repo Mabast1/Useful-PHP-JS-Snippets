@@ -2,6 +2,7 @@
 
 /* 
 
+Miniorange Oauth SSO Plugin 
 Path to file: Classes -> Common -> Widgets -> class-mooauthclientwidget.php 
 To decode: https://www.unphp.net/decode/1d14d43d6b57278e78cd47eb29cf225e/
 
