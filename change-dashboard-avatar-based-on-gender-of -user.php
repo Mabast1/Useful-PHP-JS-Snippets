@@ -1,5 +1,7 @@
-/* custom male/female user dashboard changes */
 <?php
+
+/* custom male/female user dashboard changes */
+
 function user_avatar_based_on_gender(){
 global $wpdb, $table_prefix;
 $user_ID = get_current_user_id();
