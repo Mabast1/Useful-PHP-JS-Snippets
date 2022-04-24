@@ -1,2 +1,2 @@
 # Useful-PHP-Snippets
-Some of my userful PHP snippets for WordPress 
+Some of my userful PHP & JS snippets for WordPress 
