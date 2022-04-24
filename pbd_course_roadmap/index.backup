@@ -1,0 +1,1407 @@
+<?php 
+/*
+Plugin Name: PB Digital - Course Roadmap
+Plugin URI: https://pbdigital.com.au
+Description:
+Version: 1.00
+Author: PB Digital
+Author URI: https://pbdigital.com.au
+*/
+
+if(!function_exists("pbd_courses_path")){
+
+    add_shortcode( 'pbd_courses_path', 'pbd_courses_path' );
+    function pbd_courses_path ($args) {
+
+        $user_id = get_current_user_id();
+        $course_id = $args['course_id'];
+        
+        $user_meta = get_user_meta($user_id);
+        $course_progress = unserialize($user_meta["_sfwd-course_progress"][0]);
+
+        $lessons = learndash_get_lesson_list($course_id);
+        $lessons_completed = 0;
+        $has_started = false;
+        if (isset($course_progress[$course_id])){
+            $has_started = true;
+        }
+        if (isset($course_progress[$course_id]['lessons']))
+        {
+            $lessons_completed = count($course_progress[$course_id]['lessons']);
+            $topics_completed = count($course_progress[$course_id]['topics']);
+        }
+
+        $coursecomplete = $_GET['completed'];
+
+        $completed = $_GET['completed'];
+        $incomplete = $_GET['incomplete'];
+        $previous_completed = false;
+        ob_start();
+
+    
+
+        ?>
+
+        <style type="text/css">
+        #courses-timeline {
+            position: relative;
+            max-width: 1140px;
+            width: 100%;
+            margin: 0 auto;
+            z-index: 1;
+        }
+
+        #courses-timeline .timeline-start::after {
+            content: "";
+            position: absolute;
+            width: 14px;
+            height: 200px;
+            max-height: 0;
+            -webkit-transition: max-height 0.15s ease-out;
+            transition: max-height 0.15s ease-out;
+            background: #02b4b4;
+            left: 50%;
+            -webkit-transform: translateX(-50%);
+            transform: translateX(-50%);
+            top: 106px;
+        }
+
+        @media only screen and (max-width: 830px) {
+            #courses-timeline .timeline-start::after {
+                left: 50px;
+            }
+        }
+
+        @media only screen and (max-width: 601px) {
+            #courses-timeline .timeline-start::after {
+                left: 40px;
+                top: 80px;
+            }
+        }
+
+        #courses-timeline .timeline-start.completed::after,
+        #courses-timeline .timeline-start.active::after {
+            max-height: 200px;
+            -webkit-transition: max-height 0.25s ease-in;
+            transition: max-height 0.25s ease-in;
+        }
+
+        #courses-timeline .btn-start {
+            background: #02b4b4;
+            border: 10px solid #c0ecec;
+            border-radius: 100px;
+            width: 106px;
+            height: 106px;
+            margin: 0 auto;
+            font-weight: 600;
+            font-size: 16px;
+            line-height: 24px;
+            color: #ffffff;
+            display: block;
+            text-transform: capitalize;
+            position: relative;
+            z-index: 1;
+        }
+
+        @media only screen and (max-width: 830px) {
+        #courses-timeline .btn-start {
+            margin-left: -2px;
+        }
+        }
+
+        @media only screen and (max-width: 601px) {
+        #courses-timeline .btn-start {
+            width: 80px;
+            height: 80px;
+            margin-left: 0;
+            padding: 0;
+            border-width: 8px;
+        }
+        }
+
+        #courses-timeline .timeline-end {
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+            -webkit-box-align: center;
+            -ms-flex-align: center;
+            align-items: center;
+            -webkit-box-pack: center;
+            -ms-flex-pack: center;
+            justify-content: center;
+            width: 96px;
+            height: 96px;
+            background: #ffffff;
+            border: 10px solid #f3f3f3;
+            margin: 0 auto;
+            border-radius: 100%;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        @media only screen and (max-width: 830px) {
+        #courses-timeline .timeline-end {
+            margin: 0;
+        }
+        }
+
+        @media only screen and (max-width: 601px) {
+        #courses-timeline .timeline-end {
+            width: 80px;
+            height: 80px;
+            border-width: 8px;
+        }
+        }
+
+        #courses-timeline .timeline-end.completed {
+            background: #02b4b4;
+            border: 10px solid #c0ecec;
+        }
+
+        #courses-timeline .timeline-end.completed svg path {
+            stroke: #fff;
+        }
+
+        #courses-timeline .courses-center-line {
+            position: absolute;
+            width: 14px;
+            height: 100%;
+            top: 0;
+            left: 50%;
+            -webkit-transform: translateX(-50%);
+            transform: translateX(-50%);
+            background: #f3f3f3;
+            z-index: -1;
+        }
+
+        @media only screen and (max-width: 830px) {
+            #courses-timeline .courses-center-line {
+                margin-left: 0;
+                left: 50px;
+            }
+        }
+
+        @media only screen and (max-width: 601px) {
+            #courses-timeline .courses-center-line {
+                left: 40px;
+            }
+        }
+
+        #courses-timeline .courses-timeline-content {
+            padding-top: 200px;
+        }
+
+        @media only screen and (max-width: 601px) {
+            #courses-timeline .courses-timeline-content {
+                padding-top: 156px;
+            }
+        }
+
+        #courses-timeline .content-course__details {
+            display: -ms-grid;
+            display: grid;
+            -ms-grid-columns: 100px 1fr;
+            grid-template-columns: 100px 1fr;
+            -webkit-column-gap: 20px;
+            column-gap: 20px;
+        }
+
+        @media only screen and (max-width: 601px) {
+            #courses-timeline .content-course__details {
+                -ms-grid-columns: 1fr;
+                grid-template-columns: 1fr;
+                row-gap: 20px;
+                -webkit-column-gap: 0;
+                column-gap: 0;
+            }
+        }
+
+        #courses-timeline .content-course__photo img {
+            border-radius: 20px;
+        }
+
+        #courses-timeline .content-course__info {
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+            -webkit-box-orient: vertical;
+            -webkit-box-direction: normal;
+            -ms-flex-direction: column;
+            flex-direction: column;
+            -webkit-box-pack: center;
+            -ms-flex-pack: center;
+            justify-content: center;
+        }
+
+        #courses-timeline .content-course__info h3 {
+            font-weight: 600;
+            font-size: 20px;
+            line-height: 30px;
+            color: #4d5e70;
+            margin: 0 0 10px;
+        }
+
+        #courses-timeline .content-course__info p {
+            font-weight: normal;
+            font-size: 14px;
+            line-height: 24px;
+            color: #8a9197;
+            margin: 0;
+        }
+
+        #courses-timeline .content-course__completed {
+            font-weight: normal;
+            font-size: 14px;
+            line-height: 21px;
+            color: #8a9197;
+        }
+
+        #courses-timeline .content-course__progressbar {
+            max-width: 100%;
+            width: 100%;
+            height: 6px;
+            background: #f3f3f3;
+            border-radius: 100px;
+            margin-top: 10px;
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+        }
+
+        #courses-timeline .content-course__progressbar-inner {
+            display: inline-block;
+            height: 6px;
+            background: #915dbc;
+            border-radius: 100px;
+            max-width: 100%;
+            -webkit-transition: 0.5s all ease;
+            transition: 0.5s all ease;
+        }
+
+        #courses-timeline .content-course__lesson {
+            font-weight: 600;
+            font-size: 24px;
+            line-height: 36px;
+            text-align: center;
+            color: #4d5e70;
+            background: #ffffff;
+            border: 10px solid #f3f3f3;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+            -webkit-box-align: center;
+            -ms-flex-align: center;
+            align-items: center;
+            -webkit-box-pack: center;
+            -ms-flex-pack: center;
+            justify-content: center;
+            position: absolute;
+            left: 50%;
+            -webkit-transform: translateX(-50%);
+            transform: translateX(-50%);
+            top: 0;
+            -webkit-transition: border-color 0.5s ease-out;
+            transition: border-color 0.5s ease-out;
+        }
+
+        @media only screen and (max-width: 830px) {
+            #courses-timeline .content-course__lesson {
+                left: 50px;
+            }
+        }
+
+        @media only screen and (max-width: 601px) {
+            #courses-timeline .content-course__lesson {
+                border-width: 5px;
+                font-size: 18px;
+                line-height: 1px;
+                width: 60px;
+                height: 60px;
+                left: 40px;
+            }
+        }
+
+        .timeline-article {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            padding-top: 80px;
+        }
+
+        @media only screen and (max-width: 601px) {
+            .timeline-article {
+                padding-top: 60px;
+            }
+        }
+
+        .timeline-article.active .content-course__lesson {
+            border-color: #c0ecec !important;
+        }
+
+        .timeline-article::before {
+            content: "";
+            position: absolute;
+            width: 14px;
+            height: 100%;
+            max-height: 0;
+            -webkit-transition: max-height 0.15s ease-out;
+            transition: max-height 0.15s ease-out;
+            background: #02b4b4;
+            left: 50%;
+            -webkit-transform: translateX(-50%);
+            transform: translateX(-50%);
+        }
+
+        @media only screen and (max-width: 830px) {
+            .timeline-article::before {
+                left: 50px;
+            }
+        }
+
+        @media only screen and (max-width: 601px) {
+            .timeline-article::before {
+                left: 40px;
+            }
+        }
+
+        .timeline-article.completed .content-course__lesson {
+            border-color: #c0ecec !important;
+        }
+
+        .timeline-article.completed .content-course__progressbar-inner {
+            width: 100%;
+        }
+
+        .timeline-article.completed::before {
+            max-height: 98%;
+            -webkit-transition: max-height 0.25s ease-in;
+            transition: max-height 0.25s ease-in;
+        }
+
+        .timeline-article::after {
+            content: "";
+            display: block;
+            clear: both;
+        }
+
+        .timeline-article--content {
+            max-width: 42%;
+            width: 100%;
+        }
+
+        @media only screen and (max-width: 830px) {
+            .timeline-article--content {
+                max-width: 100%;
+                width: auto;
+                float: none;
+                margin-left: 130px;
+                min-height: 53px;
+            }
+        }
+
+        @media only screen and (max-width: 601px) {
+            .timeline-article--content {
+                margin-left: 100px;
+            }
+        }
+
+        .timeline-article:nth-child(odd) .timeline-article--content {
+            float: right;
+        }
+
+        .timeline-article:nth-child(odd) .timeline-article--inner .arrow {
+            left: -27px;
+        }
+
+        .timeline-article:nth-child(even) .timeline-article--content {
+            float: left;
+        }
+
+        .timeline-article:nth-child(even) .timeline-article--inner .arrow {
+            right: -27px;
+        }
+
+        @media only screen and (max-width: 830px) {
+            .timeline-article:nth-child(even) .timeline-article--inner .arrow {
+                left: -27px;
+                right: auto;
+            }
+        }
+
+        .timeline-article .timeline-author {
+            display: block;
+            font-weight: 400;
+            font-size: 14px;
+            line-height: 24px;
+            color: #242424;
+            text-align: right;
+        }
+
+        .timeline-article .arrow {
+            position: absolute;
+            z-index: -1;
+            top: 42px;
+        }
+
+        .timeline-article--inner {
+            display: -ms-grid;
+            display: grid;
+            row-gap: 20px;
+            position: relative;
+            width: auto;
+            padding: 20px 20px 23px;
+            z-index: 1;
+            background: #ffffff;
+            -webkit-filter: drop-shadow(0px 0px 30px rgba(0, 0, 0, 0.05));
+            filter: drop-shadow(0px 0px 30px rgba(0, 0, 0, 0.05));
+            border-radius: 20px;
+            top: -110px;
+        }
+
+        @media only screen and (max-width: 601px) {
+            .timeline-article--inner {
+                top: -100px;
+            }
+        }
+
+        .path-inner .checkmark__circle {
+            stroke-dasharray: 166;
+            stroke-dashoffset: 166;
+            stroke-width: 2;
+            stroke-miterlimit: 10;
+            stroke: #fff;
+            fill: none;
+            -webkit-animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+                    animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+        }
+
+        .path-inner .checkmark {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: none;
+            stroke-width: 2;
+            stroke: #02b4b4;
+            stroke-miterlimit: 10;
+            position: absolute;
+            -webkit-animation: fill 0.4s ease-in-out 0.4s forwards,
+            scale 0.3s ease-in-out 0.9s both;
+                    animation: fill 0.4s ease-in-out 0.4s forwards,
+            scale 0.3s ease-in-out 0.9s both;
+        }
+
+        .path-inner .checkmark__check {
+            -webkit-transform-origin: 50% 50%;
+                    transform-origin: 50% 50%;
+            stroke-dasharray: 48;
+            stroke-dashoffset: 48;
+            -webkit-animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+                    animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+        }
+
+
+        /* CSS Overrides*/
+        <?php 
+        if(!empty($args["ring-color-active"])){
+            ?>
+            .timeline-article.active .content-course__lesson {
+                border-color: <?=$args["ring-color-active"]?> !important;
+            }
+            <?php
+        }
+        if(!empty($args["ring-color-completed"])){
+            ?>
+            .timeline-article.completed .content-course__lesson {
+                border-color: <?=$args["ring-color-completed"]?> !important;
+            }
+            <?php 
+        }
+
+        if(!empty($args["ring-color"])){
+            ?>
+            #courses-timeline .content-course__lesson {
+                border: 10px solid <?=$args["ring-color"]?>;
+            }
+            <?php 
+        }
+
+        if(!empty($args["path-color-completed"])){
+            ?>
+            .timeline-article::before,
+            #courses-timeline .timeline-start::after {
+                background: <?=$args["path-color-completed"]?>;
+            }
+            <?php
+        }
+
+        if(!empty($args["path-color"])){
+            ?>
+            #courses-timeline .courses-center-line{
+                background: <?=$args["path-color"]?>;
+            }
+            <?php
+        }
+
+        if(!empty($args["progress-color"])){
+            ?>
+            #courses-timeline .content-course__progressbar-inner{
+                background: <?=$args["progress-color"]?>;
+            }
+            <?php
+        }
+
+        ?>
+        #courses-timeline .btn-start {
+            <?php if(!empty($args["start-background-color"])){ ?> background: <?=$args["start-background-color"]?>; <?php }?>
+            <?php if(!empty($args["start-ring-color"])){ ?>border: 10px solid <?=$args["start-ring-color"]?>; <?php }?>
+            <?php if(!empty($args["start-color"])){ ?>color: <?=$args["start-color"]?>; <?php }?>
+        }
+        #courses-timeline .timeline-end.completed {
+            <?php if(!empty($args["completed-background-color"])){ ?> background: <?=$args["completed-background-color"]?>; <?php }?>
+            <?php if(!empty($args["completed-ring-color"])){ ?>border: 10px solid <?=$args["completed-ring-color"]?>; <?php }?>
+        }
+
+        <?php if(!empty($args["completed-color"])){ ?>
+        #courses-timeline .timeline-end.completed svg path {
+            stroke: <?=$args["completed-color"]?>;
+        }
+        <?php }?>
+
+        <?php
+        if(!empty($args["checkmak-color"])){
+            ?>
+            .path-inner .checkmark {
+                stroke: <?=$args["checkmak-color"]?>;
+            }
+        <?php
+        }
+        /*
+        [pbd_courses_path course_id=2671  
+        start-ring-color="#c3e2f1" 
+        start-color="#000" 
+        start-background-color="#3897ff" 
+        ring-color="#c3e2f1" 
+        ring-color-completed="#3897ff" 
+        ring-color-active="#beddff"   
+        path-color="#e2f5ff" 
+        path-color-completed="#3897ff"  
+        progress-color="#006bc6"
+        checkmak-color="#006bc6"
+        completed-ring-color="#c3e2f1"
+        completed-background-color="#3897ff"
+        completed-color="#000"
+        ]
+        */
+        ?>
+    
+
+        </style>
+
+        <div class="path">
+            <div class="path-inner">
+                <!-- Vertical Timeline -->
+                <section id="courses-timeline">
+                    <div class="timeline-start completed
+                    <?=($completed) ? 'completed' : '';?>
+                    <?=($incomplete) ? 'completed' : '';?>"><button class="btn-start">Start</button></div>
+                    <div class="courses-center-line"></div>
+                    <div class="courses-timeline-content">
+                        <?php foreach ($lessons as $k=>$lesson){
+                            $completed = false;
+                            $lesson_id = $lesson->ID;
+                            $topics = learndash_topic_dots($lesson_id, false, 'array');
+                            $topics = count($topics);
+                            $topics_completed = count($course_progress[$course_id]['topics'][$lesson_id]);
+
+                            if( empty($course_progress[$course_id]['topics'][$lesson_id]) ){                        
+
+                                if ( $course_progress[ $course_id ]['lessons'][ $lesson_id ] ){
+                                    
+                                    if(empty($topics)){
+                                        $topics = 1;
+                                        $topics_completed = 1;
+                                    }else{
+                                        $topics_completed = count($topics);
+                                    } 
+                                } 
+                            }
+                            $percent_completed = round($topics_completed / $topics * 100,0);
+
+                            if($percent_completed >= 100 ) $completed = true;
+                            
+                        ?>
+                        <!-- Article -->
+                        <div class="timeline-article 
+                        <?=($completed) ? 'completed' : '';?>
+                        <?=($previous_completed) ? 'active' : '';?>"
+                        onclick="window.location = '<?=get_permalink($lesson->ID);?>'"
+                        style="cursor:pointer;">
+                            
+                            <div class="timeline-article--content">
+                                <div class="timeline-article--inner">
+                                    <svg class="arrow" width="57" height="57" viewBox="0 0 57 57" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M28.284 14L56.57 28.284 28.284 42.57 0 28.284 28.284 14z" fill="#fff"/></svg>
+                                    <div class="content-course__details">
+                                        <div class="content-course__photo">
+                                            <img src="<?=get_the_post_thumbnail_url( $lesson->ID);?>" alt="Yoga Beginner course">
+                                        </div>
+                                        <div class="content-course__info">
+                                            <h3><?=$lesson->post_title;?></h3>
+                                            <p><?=get_post_meta($lesson->ID, '_learndash_course_grid_short_description', true);?></p>
+                                        </div>
+                                    </div>
+                                    <div class="content-course__progress">
+                                        <div class="content-course__completed">
+                                            <?=$topics_completed;?> of <?=$topics;?> lessons completed
+                                        </div>
+                                        <div class="content-course__progressbar">
+                                            <div class="content-course__progressbar-inner" style="width:<?=$percent_completed;?>%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="content-course__lesson">
+                                <span><?php echo $k + 1;?></span>
+                                <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/><path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/></svg>
+                            </div>
+                        </div>
+                        <!-- // Article -->
+                        <?php 
+                            if ($completed) { $previous_completed = true; } else { $previous_completed = false; }
+                        } ?>
+                        
+                    </div>
+                    <div class="timeline-end 
+                        <?=($completed) ? 'completed' : '';?>"><svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M26.546 10.182c3 0 5.454-3.546 5.454-6.818h-5.454M7.454 10.182c-3 0-5.455-3.546-5.455-6.818h5.455M17 18.5v9.41M23.818 32H10.182m10.909-4.09h-8.182M26.545 8.817V2H7.456v6.818A9.487 9.487 0 0017 18.364a9.487 9.487 0 009.546-9.546z" stroke="#4D5E70" stroke-width="3" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                </section>
+                <!-- // Vertical Timeline -->
+
+
+                
+            
+
+            </div>
+        </div>
+        
+        <?php
+        
+        $output = ob_get_contents();
+        ob_end_clean();
+        return $output;
+    }
+}
+
+function pbd_custom_scripts() {   
+    wp_enqueue_script( 'jquery-wait', plugin_dir_url( __FILE__ ) . 'jquery.wait.js' );
+    wp_enqueue_script( 'confetti', plugin_dir_url( __FILE__ ) . 'confetti.js' );
+}
+add_action('wp_enqueue_scripts', 'pbd_custom_scripts');
+
+if(!function_exists("pbd_courses_path_scripts")){
+    function pbd_courses_path_scripts() {
+        $completed = $_GET['completed'];
+        $incomplete = $_GET['incomplete'];
+        ?>
+        
+        <script>
+            jQuery(document).ready(function ($) {
+                $('.btn-start').on('click', function () {
+                    $(this).next().addClass('active');
+                    $(this).parent().addClass('completed').next().wait(500).addClass('active');
+
+                    setTimeout(() => {                        
+                        $('html, body').animate({
+                            scrollTop: $(".path-svg.active").offset().top - 160
+                        }, 500);
+                    }, 500);
+                });
+
+
+                let time =  500;
+                let delay = 1500;
+                let lessons_completed = 7;
+                let number = 0;
+                jQuery('.path-svg').each(function(e) {
+                                    
+                    setTimeout(() => {
+                        jQuery(this).removeClass('active')
+                                .addClass('completed')
+                                .next()
+                                .addClass('active');
+
+                        
+                            if ($(this).is(':last-child')) {
+                                confetti.start();
+                                setTimeout(() => {
+                                    confetti.stop();
+                                }, 5000);
+                            }else {
+                                $('html, body').animate({
+                                    scrollTop: $(this).next().offset().top - 160
+                                }, delay);
+                            }
+                        number++;
+                    }, time);
+                    time+=delay;
+
+
+                });
+
+
+                // $('.btn-start').on('click',function () {
+                //     $(this).parent().addClass('active');
+                //     $('.timeline-article:first-child').addClass('active');
+                //     $([document.documentElement, document.body]).animate({
+                //         scrollTop: $(".timeline-article:first-child").offset().top - 100
+                //     }, 1000);
+                // });
+
+            
+                // $(window).load( () => {
+                //     // scroll to trophy
+                //     <?php if ($completed): ?>
+                //         $([document.documentElement, document.body]).animate({
+                //             scrollTop: $(".timeline-end").offset().top - 100
+                //         }, 1000);	
+                //     <?php endif; ?>
+
+                //     // scroll to active course
+                //     <?php if ($incomplete): ?>
+                //         $([document.documentElement, document.body]).animate({
+                //             scrollTop: $(".timeline-article.active").offset().top - 100
+                //         }, 1000);
+                //     <?php endif; ?>
+
+
+                //     let time =  1000;
+                //     let delay = 1500;
+
+                //     $('.timeline-article').each(function () {
+                //         setTimeout(() => {
+                //             if ($(this).hasClass('completed')) {
+                //                 $('.content-course__lesson .checkmark',this).show();
+                //                 $('html, body').animate({
+                //                     scrollTop: $(this).offset().top - 120
+                //                 }, delay);
+                //             }else {
+                //                 if ($(this).hasClass('active'))
+                //                 $('html, body').animate({
+                //                     scrollTop: $(this).offset().top - 120
+                //                 }, delay);
+                //             }
+                //         }, time);
+                //         time+=delay;
+                        
+                        
+                //     });
+                // });
+            
+
+            
+            });
+        </script>
+        <?php
+    }
+    add_action('wp_footer','pbd_courses_path_scripts');
+}
+
+// start curve path
+add_shortcode("pbd_course_roadmap_curve", function(){
+    $user_id = get_current_user_id();
+    $user_meta = get_user_meta($user_id);
+ 
+    ob_start();
+    ?>
+    <style type="text/css">
+    .page-template-pt-pathdev {
+        margin:100px auto;
+    }
+    .pathway-course-path{
+        display:block
+    }
+    .pathway-courses--item{
+        z-index:999
+    }
+    .pathway-course-path.left .vertical-line
+    {
+        background: #CED3D4;
+        width: 412px;
+        height: 23px;
+        position: absolute;
+        left: -135px;
+    }
+    .right-vertical-line {
+        background: #CED3D4;
+        width: 420px;
+        height: 27px;
+        position: absolute;
+        right: -205px;
+        top: 3px;;
+    }
+    .path-container{
+        position:relative
+    }
+    .path-container-0 .right-vertical-line {
+        width: 250px;
+        top: 0px;
+    }
+
+    /* new path */
+    .path {
+        background:#98C850;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 100px 50px 200px;
+        position: relative;
+        width:calc(100% - 40px);
+    }
+    @media (max-width:601px) {
+        .path {
+            zoom:.6;
+            padding-left:20px;
+            padding-right:20px;
+        }
+    }
+    .path-svg {
+        display:block;
+        position:relative;
+    }
+    .path-svg svg {
+        display:block;
+        width: auto;
+        transform:translateX(-50%);
+        position:relative;
+    }
+    .path-svg.completed .path-btn,
+    .path-svg.active .path-btn{
+        border-color:#fff;
+        box-shadow: 0px 6px 0px #9ECFEE, 0px 10px 8px rgba(46, 66, 90, 0.15);
+    }
+    .path-svg svg .line {
+        transition: 0.5s all ease;
+    }
+    .path-svg svg .stroke {
+        transition: 0.5s all ease;
+        stroke-dasharray: 0;
+        stroke-dashoffset: -1000;
+    }
+    .path-svg.completed svg .line,
+    .path-svg svg.active .line{
+        stroke: #fff;
+        stroke-dashoffset: -500;
+    }
+    .path-svg.completed svg .stroke,
+    .path-svg svg.active .stroke {
+        stroke-dasharray: 3, 6;
+        stroke: #3da0dd;
+    }
+
+    .starting-path svg{
+        max-width: 236px;
+        display: block;
+        left:50%;
+    }
+
+    .path-right svg{
+        position:relative;
+        max-width: 283px;
+        left:calc(50% + 138px);
+        width: 100%;
+        transform: translateX(-50%);
+        margin-top: -20px;
+        pointer-events:none;
+    }
+
+    .path-left svg{
+        max-width:282px;
+        left: calc(50% - 139px);
+        margin-top: -20px;
+    }
+    .path-middle svg{
+        max-width: 236px;
+        left: 50%;
+        margin-top: -20.1px;
+        display: block;
+    }
+    button.btn-start {
+        position: absolute;
+        width: 120px;
+        height: 120px;
+        background: linear-gradient(135deg, #FFC262 0%, #FF9B40 100%);
+        border: 8px solid #fff;
+        box-shadow: 0px 6px 0px #ffbc5c, 0px 10px 8px rgb(46 66 90 / 15%);
+        left: calc(50% - 150px);
+        transform: translateX(-50%);
+        z-index: 10;
+        margin-top: -52px;
+    }
+    button.path-btn {
+        cursor:pointer;
+        width: 120px;
+        height: 120px;
+        position: absolute;
+        background: 0;
+        border: 8px solid #DDF49D;
+        padding: 0;
+        overflow: hidden;
+        background: #DDF49D;
+        transition:.5s all ease;
+        box-shadow: 0px 6px 0px #B9E676, 0px 10px 8px rgba(46, 66, 90, 0.15);
+        z-index:10;
+    }
+    .path-lesson {
+        width: 200px;
+        position: absolute;
+        text-align: center;
+        top: 80px;
+    }
+    .path-lesson h3 {
+        font-weight: 600;
+        font-size: 20px;
+        line-height: 30px;
+        text-align: center;
+        color: #FFFFFF;
+        margin:0;
+    }
+    button.path-btn img {
+        object-fit:cover;
+    }
+    .path-right button.path-btn {
+        left: calc(50% + 50px);
+        top: -52px;
+    }
+    .path-right .path-lesson {
+        left: calc(50% + 10px);
+    }
+    .path-left button.path-btn{
+        left: calc(50% - 59px);
+        top: -50px;
+    }
+    .path-left .path-lesson {
+        left: calc(50% - 100px);
+    }
+    .path-middle .path-btn {
+        left: calc(50% - 200px);
+        top: -50px;
+    }
+    .path-middle .path-lesson {
+        left:calc(50% - 240px);
+    }
+
+    .path-right.path-finish button.path-btn {
+        left: calc(50% + 50px);
+        top: -70px;
+    }
+
+    .path-left.path-finish button.path-btn {
+        top:-70px;
+    }
+    
+    .path-middle.path-finish button.path-btn {
+        top:-70px;
+    }
+    
+    .path-finish .path-lesson{
+        top:63px;
+    }
+    </style>
+    <div class="page-template-pt-pathdev">
+        <link rel="stylesheet" href="https://members.guitaristacademy.com/wp-content/themes/buddyboss-theme-child-old/assets/css/courses.css?ver=1614516327"/>
+        
+        <div class="path">
+            <!-- starting path -->
+            <div class="path-svg starting-path">
+                <button class="btn-start">Start</button>
+                <svg class="" viewBox="0 0 236 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path class="line" d="M234 10H2" stroke="#DDF49D" stroke-width="20"/>
+                    <path class="stroke" d="M234 10H2" stroke="#DDF49D" stroke-width="3" stroke-linecap="round" stroke-dasharray="3 8"/>
+                </svg>
+            </div>
+            <!-- end starting path -->
+
+            <!-- right path -->
+            <div class="path-svg path-right">
+                <button class="path-btn">
+                    <img src="<?=site_url();?>/wp-content/uploads/2021/01/Rectangle-61.png" alt="">
+                </button>
+                <div class="path-lesson">
+                    <h3>Introduction To Yoga</h3>
+                </div>
+                <svg class="" viewBox="0 0 283 328" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path class="line" d="M119 10c85.052 0 154 68.948 154 154s-68.948 154-154 154H2" stroke="#DDF49D" stroke-width="20"/>
+                    <path class="stroke" d="M119 10c85.052 0 154 68.948 154 154s-68.948 154-154 154H2" stroke="#DDF49D" stroke-width="3" stroke-linecap="round" stroke-dasharray="3 8"/>
+                </svg>
+            </div>
+            <!-- end right path -->
+
+            <!-- left path -->
+            <div class="path-svg path-left">
+                <button class="path-btn">
+                    <img src="<?=site_url();?>/wp-content/uploads/2021/01/Rectangle-61.png" alt="">
+                </button>
+                <div class="path-lesson">
+                    <h3>Lesson 2</h3>
+                </div>
+                <svg class="" viewBox="0 0 282 328" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path class="line" d="M164 318C78.9482 318 10 249.052 10 164C10 78.9482 78.9481 10 164 10H280" stroke="#DDF49D" stroke-width="20"/>
+                    <path class="stroke" d="M164 318C78.9482 318 10 249.052 10 164C10 78.9482 78.9481 10 164 10H280" stroke="#DDF49D" stroke-width="3" stroke-linecap="round" stroke-dasharray="3 8"/>
+                </svg>
+            </div>
+            <!-- end left path -->
+
+            <!-- middle path -->
+            <div class="path-svg path-middle">
+                <button class="path-btn">
+                    <img src="<?=site_url();?>/wp-content/uploads/2021/01/Rectangle-61.png" alt="">
+                </button>
+                <div class="path-lesson">
+                    <h3>Lesson 3</h3>
+                </div>
+                <svg class="" viewBox="0 0 236 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path class="line" d="M234 10H2" stroke="#DDF49D" stroke-width="20"/>
+                    <path class="stroke" d="M234 10H2" stroke="#DDF49D" stroke-width="3" stroke-linecap="round" stroke-dasharray="3 8"/>
+                </svg>
+            </div>
+            <!-- end middle -->
+
+            <!-- right path -->
+            <div class="path-svg path-right">
+                <button class="path-btn">
+                    <img src="<?=site_url();?>/wp-content/uploads/2021/01/Rectangle-61.png" alt="">
+                </button>
+                <div class="path-lesson">
+                    <h3>Lesson 4</h3>
+                </div>
+                <svg class="" viewBox="0 0 283 328" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path class="line" d="M119 10c85.052 0 154 68.948 154 154s-68.948 154-154 154H2" stroke="#DDF49D" stroke-width="20"/>
+                    <path class="stroke" d="M119 10c85.052 0 154 68.948 154 154s-68.948 154-154 154H2" stroke="#DDF49D" stroke-width="3" stroke-linecap="round" stroke-dasharray="3 8"/>
+                </svg>
+            </div>
+            <!-- end right path -->
+
+           
+            
+            <?php if ($_GET['middle']): ?>
+                <!-- left path -->
+                <div class="path-svg path-left">
+                    <button class="path-btn">
+                        <img src="<?=site_url();?>/wp-content/uploads/2021/01/Rectangle-61.png" alt="">
+                    </button>
+                    <div class="path-lesson">
+                        <h3>Lesson 5</h3>
+                    </div>
+                    <svg class="" viewBox="0 0 282 328" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path class="line" d="M164 318C78.9482 318 10 249.052 10 164C10 78.9482 78.9481 10 164 10H280" stroke="#DDF49D" stroke-width="20"/>
+                        <path class="stroke" d="M164 318C78.9482 318 10 249.052 10 164C10 78.9482 78.9481 10 164 10H280" stroke="#DDF49D" stroke-width="3" stroke-linecap="round" stroke-dasharray="3 8"/>
+                    </svg>
+                </div>
+                <!-- end left path -->
+
+                <!-- middle path -->
+                <div class="path-svg path-middle path-finish">
+                    <button class="path-btn">
+                        <img src="<?=site_url();?>/wp-content/uploads/2021/01/Rectangle-61.png" alt="">
+                    </button>
+                    <div class="path-lesson">
+                        <h3>Lesson 6</h3>
+                    </div>
+                </div>
+
+            <?php elseif ($_GET['right']): ?>
+                <!-- left path -->
+                <div class="path-svg path-left">
+                    <button class="path-btn">
+                        <img src="<?=site_url();?>/wp-content/uploads/2021/01/Rectangle-61.png" alt="">
+                    </button>
+                    <div class="path-lesson">
+                        <h3>Lesson 5</h3>
+                    </div>
+                    <svg class="" viewBox="0 0 282 328" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path class="line" d="M164 318C78.9482 318 10 249.052 10 164C10 78.9482 78.9481 10 164 10H280" stroke="#DDF49D" stroke-width="20"/>
+                        <path class="stroke" d="M164 318C78.9482 318 10 249.052 10 164C10 78.9482 78.9481 10 164 10H280" stroke="#DDF49D" stroke-width="3" stroke-linecap="round" stroke-dasharray="3 8"/>
+                    </svg>
+                </div>
+                <!-- end left path -->
+
+                <!-- middle path -->
+                <div class="path-svg path-middle">
+                    <button class="path-btn">
+                        <img src="<?=site_url();?>/wp-content/uploads/2021/01/Rectangle-61.png" alt="">
+                    </button>
+                    <div class="path-lesson">
+                        <h3>Lesson 6</h3>
+                    </div>
+                    <svg class="" viewBox="0 0 236 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path class="line" d="M234 10H2" stroke="#DDF49D" stroke-width="20"/>
+                        <path class="stroke" d="M234 10H2" stroke="#DDF49D" stroke-width="3" stroke-linecap="round" stroke-dasharray="3 8"/>
+                    </svg>
+                </div>
+                <!-- end middle -->
+
+                <!-- right path -->
+                <div class="path-svg path-right path-finish">
+                    <button class="path-btn">
+                        <img src="<?=site_url();?>/wp-content/uploads/2021/01/Rectangle-61.png" alt="">
+                    </button>
+                    <div class="path-lesson">
+                        <h3>Finish</h3>
+                    </div>
+                </div>
+                <!-- end right path -->
+            <?php else: ?>
+
+                <!-- left path -->
+                <div class="path-svg path-left path-finish">
+                    <button class="path-btn">
+                        <img src="<?=site_url();?>/wp-content/uploads/2021/01/Rectangle-61.png" alt="">
+                    </button>
+                    <div class="path-lesson">
+                        <h3>Lesson 5</h3>
+                    </div>
+                </div>
+                <!-- end left path -->
+            
+
+            <?php endif; ?>
+            <!-- end middle -->
+            
+                          
+        </div>
+           
+        <!-- <div class="pathway">
+            <div class="pathway-inner">
+                <h4>Beginner   Pathway:</h4>
+                <h2>Learn To Strum Chords & Play Songs In 6 Weeks or Less!</h2>
+            </div>
+            <div class="pathway-road">
+                <div class="pathway-courses" style="width:100%; margin:auto">
+                    <div class="pathway-courses--item active start-here">
+                        <div class="you">
+                            <div class="wobble-hor-bottom">Start Here!<svg width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10.431.727l7.915 7.914L10.43 20 2.517 8.641 10.43.727z" fill="#487DC0"/></svg></div>
+                        </div>
+                        <button class="btn-start"><span>Start</span></button>
+                    </div>
+
+                    <?php 
+                    $steps_count = 6;
+                    $show_path = true;
+                    $left = 35;
+                    $path_is_right = true;
+                    $course_id = 2671;
+
+                    $reverse_array = true;
+                    $course_lessons = learndash_get_lesson_list($course_id);
+                    $course_progress = unserialize($user_meta["_sfwd-course_progress"][0]);
+
+                    $i = 0;
+                    $j = 0;
+                    foreach($course_lessons as $e){
+                        $lessons[$i][$j] = $e;
+                        if(!$j){
+                            $j = 1;
+                        }else{
+                            $j = 0;
+                            $i++;
+                        }
+                    }
+
+                    
+                    $lesson_i = 0;
+                    foreach($lessons as $arr){
+                        ?>
+                        <div class="path-container path-container-<?=$lesson_i?>">
+                        <?php
+                        if($reverse_array){
+                            $arr = array_reverse($arr);
+                            $reverse_array = false;
+                        }else{
+                            $reverse_array = true;
+                        }
+
+                        foreach($arr as $lesson){
+
+                            $lessons_completed = 0;
+                            $has_started = false;
+                            if (isset($course_progress[$course_id])){
+                                $has_started = true;
+                            }
+                            if (isset($course_progress[$course_id]['lessons']))
+                            {
+                                #$lessons_completed = count($course_progress[$course_id]['lessons']);
+                                $topics_completed = count($course_progress[$course_id]['topics']);
+                            }
+
+                            $lesson_id = $lesson->ID;
+                            $topics = learndash_topic_dots($lesson_id, false, 'array');
+                            $topics = count($topics);
+                            $topics_completed = count($course_progress[$course_id]['topics'][$lesson_id]);
+                            $percent_completed = round($topics_completed / $topics * 100,0);
+
+                            if(count($arr) < 2){
+                                $left = 65;
+                            }
+
+                            switch($left){
+                                case 65: 
+                                    $class = "item-middle";
+                                    break;
+                                case 70: 
+                                    $class = "item-right";
+                                    break;
+                                case 35:
+                                    $class = "item-left";
+                                    break;
+                            }
+
+                            ?>
+                            <div class="pathway-courses--item <?=($percent_completed >= 100 ) ? "completed":""?> path-lesson-<?=$lesson_id?> <?=$class?> " 
+                            data-lessonid="<?=$lesson_id?>" 
+                            style="position:absolute; bottom:-80px; left:<?=$left?>%; right:auto; top:auto">
+                                <div class="you">
+                                    <div class="wobble-hor-bottom">You Are Here!<svg width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10.431.727l7.915 7.914L10.43 20 2.517 8.641 10.43.727z" fill="#487DC0"/></svg></div>
+                                </div>
+                                <button data-path="2">
+                                    <img src="<?=get_the_post_thumbnail_url($lesson_id)?>"/>
+                                    <div class="courseprogress" <?=$lessons_completed?> >
+                                    </div>
+                                </button>
+                                <h3><a href="#"><span><?=$lesson->post_title?></span></a></h3>
+                            </div>
+                            <?php 
+                            $left = ($left==35) ? 70:35;
+                        }
+
+                        if($path_is_right){
+                            $rand = mt_rand();
+                            ?>
+                            <div class="pathway-course-path right" style="display:flex; margin-top:-27px">
+                                <div style="flex:1">
+                                    <div style="position:relative">
+                                        <div class="right-vertical-line">
+                                        
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="flex:1">
+                                    <div style="position:relative">
+                                        <svg class="vertical-line"  viewBox="0 0 365 472" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M345 362L345 107H365L365 234.5V362C365 422.751 315.751 472 255 472L145 472V452L255 452C304.706 452 345 411.706 345 362Z" fill="#CED3D5"/>
+                                            <path d="M255 20L150 20L150 0L127.5 0L255 0C315.751 0 365 49.2487 365 110L365 320H345L345 110C345 60.2944 304.706 20 255 20Z" fill="#CED3D5"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php
+                        }else{
+                            ?>
+                            <div class="pathway-course-path left" style="display:flex; margin-top:-27px" >
+                                <div style="flex:1">
+                                    <svg  class="right-path" viewBox="0 0 365 472" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M20 110L20 365H0L0 237.5L0 110C0 49.2487 49.2487 0 110 0L260 0V20L110 20C60.2944 20 20 60.2944 20 110Z" fill="#CED3D5"/>
+                                        <path d="M110 452L205 452V472H237.5L110 472C49.2487 472 0 422.751 0 362L0 152H20L20 362C20 411.706 60.2944 452 110 452Z" fill="#CED3D5"/>
+                                    </svg>
+                                </div>
+                                <div  style="flex:1">
+                                    <div style="position:relative">
+                                        <div class="vertical-line">
+                                        
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php
+                        } 
+                        $path_is_right = $path_is_right ? false:true;
+                        ?>
+                        </div>
+                        <?php
+
+                        $lesson_i++;
+                    }
+
+
+                    ?>
+                    <div style="position:relative">
+                    <?php
+                    if($path_is_right){
+                        ?>
+                        <div class="pathway-course-path right" style="display:flex; margin-top:-37px">
+                            <div style="flex:1">
+                                <div style="position:relative">
+                                    <div class="right-vertical-line">
+                                    
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="flex:1">
+                            
+                                <svg viewBox="0 0 365 472" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M345 362L345 107H365L365 234.5V362C365 422.751 315.751 472 255 472L145 472V452L255 452C304.706 452 345 411.706 345 362Z" fill="#CED3D5"/>
+                                    <path d="M255 20L150 20L150 0L127.5 0L255 0C315.751 0 365 49.2487 365 110L365 320H345L345 110C345 60.2944 304.706 20 255 20Z" fill="#CED3D5"/>
+                                </svg>
+
+                            </div>
+                        </div>
+                        <?php
+                    }else{
+                        ?>
+                        <div class="pathway-course-path left" style="display:flex; margin-top:-37px" >
+                            <div style="flex:1">
+                                <svg  viewBox="0 0 365 472" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M20 110L20 365H0L0 237.5L0 110C0 49.2487 49.2487 0 110 0L260 0V20L110 20C60.2944 20 20 60.2944 20 110Z" fill="#CED3D5"/>
+                                    <path d="M110 452L205 452V472H237.5L110 472C49.2487 472 0 422.751 0 362L0 152H20L20 362C20 411.706 60.2944 452 110 452Z" fill="#CED3D5"/>
+                                </svg>
+                            </div>
+                            <div  style="flex:1">
+                                <div style="position:relative">
+                                    <div class="vertical-line">
+                                    
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <?php
+                    } 
+                    $path_is_right = $path_is_right ? false:true;
+                    ?>
+                    </div>
+                    <?php
+                    ?>
+                   
+                    <div class="pathway-courses--item finish  <?=($lessons_completed > 6) ? '' : 'locked';?>" style="position:absolute; bottom:-80px; left:50%; right:auto; top:auto">
+                        
+                        <div class="lock-tooltip">
+                            <svg width="22" height="18" viewBox="0 0 22 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.27 0l10.625 17.567H.644L11.269 0z" fill="#00223C"/></svg>
+                            <div>
+                                <svg width="29" height="36" viewBox="0 0 29 36" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M28.8 18c0-1.985-1.615-3.6-3.6-3.6h-1.8V9c0-4.963-4.037-9-9-9s-9 4.037-9 9v5.4H3.6A3.604 3.604 0 000 18v14.4C0 34.385 1.615 36 3.6 36h21.6c1.985 0 3.6-1.615 3.6-3.6V18zM9 9c0-2.977 2.423-5.4 5.4-5.4 2.977 0 5.4 2.423 5.4 5.4v5.4H9V9z" fill="#fff"/></svg>
+                                <span>Complete the steps above to unlock this!</span>
+                            </div>
+                        </div>
+                        <button data-path="10"><img src="<?=get_stylesheet_directory_uri();?>/images/award2.png" alt="Finish"></button>
+                        <h3><a href="#"><span>Finish</span></a></h3>
+                    </div>
+
+                </div>
+ 
+
+            </div>
+            <div class="pathway-congrats">
+                <h3>Congratulations</h3>
+                <p>You have completed the 6 Week Challenge and earned the Certificate of Completion</p>
+                
+                <a href="<?=$certificate?>" class="btn-download" target="_blank">download certificate</a>
+            </div>
+        </div>
+        -->
+        
+    </div>
+    <?php
+
+    $out = ob_get_contents();
+    ob_end_clean();
+    return $out;
+})
+?>
