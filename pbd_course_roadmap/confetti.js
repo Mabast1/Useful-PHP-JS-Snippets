@@ -1,3 +1,4 @@
+//maybe use lottie or svg file instead
 var confetti = {
   maxCount: 150,
   speed: 2,
@@ -138,11 +139,11 @@ var confetti = {
     null === m
       ? ((m = document.createElement("canvas")).setAttribute(
           "id",
-          "confetti-canvas",
+          "confetti-canvas"
         ),
         m.setAttribute(
           "style",
-          "display:block;z-index:999999;pointer-events:none;position:fixed;top:0",
+          "display:block;z-index:999999;pointer-events:none;position:fixed;top:0"
         ),
         document.body.prepend(m),
         (m.width = r),
@@ -152,7 +153,7 @@ var confetti = {
           function () {
             (m.width = window.innerWidth), (m.height = window.innerHeight);
           },
-          !0,
+          !0
         ),
         (l = m.getContext("2d")))
       : null === l && (l = m.getContext("2d"));
