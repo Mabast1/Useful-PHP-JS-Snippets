@@ -1494,6 +1494,7 @@ add_shortcode("pbd_course_roadmap_curve", function($attr){
             $course_id = $attr["course_id"];
 
             $reverse_array = true;
+            //look into getting the course id dynamically
             $course_lessons = learndash_get_lesson_list($course_id);
             $course_progress = unserialize($user_meta["_sfwd-course_progress"][0]);
 
